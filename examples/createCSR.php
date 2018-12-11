@@ -27,7 +27,7 @@ $csr = $factory->getCsr($domain, $subject, $k);
 $csrSerializer = new \Mdanter\X509\Serializer\Certificates\CsrSerializer(
     new \Mdanter\X509\Serializer\Certificates\CertificateSubjectSerializer(),
     new \Mdanter\Ecc\Serializer\PublicKey\DerPublicKeySerializer($adapter),
-    new \Mdanter\X509\Serializer\Signature\DerSignatureSerializer()
+    new \Mdanter\Ecc\Serializer\Signature\DerSignatureSerializer()
 );
 
 $serialized = $csrSerializer->serialize($csr);

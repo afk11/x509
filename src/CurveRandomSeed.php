@@ -21,6 +21,7 @@ class CurveRandomSeed
 
     /**
      * @param NamedCurveFp $curve
+     * @return mixed
      */
     public static function getSeed(NamedCurveFp $curve)
     {

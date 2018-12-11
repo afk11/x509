@@ -14,6 +14,9 @@ class CertificateSubjectOidMapper
     const COMMONNAME_OID = '2.5.4.3';
     const EMAILADDRESS_OID = '1.2.840.113549.1.9.1';
 
+    /**
+     * @var array
+     */
     private static $oidMap = [
         'country' => self::COUNTRY_OID,
         'state' => self::STATE_OID,
@@ -25,7 +28,7 @@ class CertificateSubjectOidMapper
     ];
 
     /**
-     * @param $string
+     * @param string $string
      * @return ObjectIdentifier
      * @throws \Exception
      */

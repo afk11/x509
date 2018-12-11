@@ -5,7 +5,7 @@ namespace Mdanter\X509;
 use Mdanter\Ecc\Crypto\Key\PrivateKeyInterface;
 use Mdanter\Ecc\Curves\CurveFactory;
 use Mdanter\Ecc\EccFactory;
-use Mdanter\Ecc\Math\MathAdapterInterface;
+use Mdanter\Ecc\Math\GmpMathInterface;
 use Mdanter\Ecc\Random\RandomGeneratorFactory;
 use Mdanter\X509\Serializer\Certificates\CertificateSubjectSerializer;
 use Mdanter\X509\Certificates\CertificateAuthority;
@@ -15,12 +15,12 @@ use Mdanter\X509\Certificates\Csr;
 class Factory
 {
     /**
-     * @param MathAdapterInterface|null $adapter
+     * @param GmpMathInterface $adapter
      * @param string $curveName
-     * @param string $hashAlgorithm
+     * @param SignatureAlgorithm $sigAlgorithm
      * @return EcDomain
      */
-    public static function getDomain(MathAdapterInterface $adapter, $curveName, $hashAlgorithm)
+    public static function getDomain(GmpMathInterface $adapter, $curveName, SignatureAlgorithm $sigAlgorithm)
     {
         $adapter = $adapter ?: EccFactory::getAdapter();
 
@@ -28,7 +28,7 @@ class Factory
             $adapter,
             CurveFactory::getCurveByName($curveName),
             CurveFactory::getGeneratorByName($curveName),
-            new Hasher($adapter, $hashAlgorithm)
+            $sigAlgorithm
         );
     }
 
@@ -42,6 +42,7 @@ class Factory
     {
         $subjectSerializer = new CertificateSubjectSerializer();
         $serialized = $subjectSerializer->serialize($subject);
+        $hash = $domain->getHasher()->hashGmp($serialized);
 
         return new Csr(
             $domain,
@@ -51,22 +52,20 @@ class Factory
                 ->getSigner()
                 ->sign(
                     $privateKey,
-                    $domain
-                        ->getHasher()
-                        ->hashDec($serialized),
-                    RandomGeneratorFactory::getUrandomGenerator()
+                    $hash,
+                    RandomGeneratorFactory::getRandomGenerator()
                         ->generate($domain->getGenerator()->getOrder())
                 )
         );
     }
 
     /**
-     * @param MathAdapterInterface $math
+     * @param GmpMathInterface $math
      * @param EcDomain $domain
      * @param CertificateSubject $issuerSubject
      * @return CertificateAuthority
      */
-    public static function getCA(MathAdapterInterface $math, EcDomain $domain, CertificateSubject $issuerSubject)
+    public static function getCA(GmpMathInterface $math, EcDomain $domain, CertificateSubject $issuerSubject)
     {
         return new CertificateAuthority(
             $math,

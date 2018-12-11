@@ -47,7 +47,7 @@ class RootCA extends AbstractExtensions
     public function apply(CertificateInfo $certificateInfo)
     {
         $caKey = $certificateInfo->getPublicKey();
-        $caHasher = SigAlgorithmOidMapper::getHasher($certificateInfo->getSigAlgo());
+        $caHasher = SigAlgorithmOidMapper::getHasher($certificateInfo->getSigAlgorithm()->getHashAlgorithm());
         $hash = $this->keyIdentifier($caHasher, $caKey);
 
         $extensions = new CertificateExtensions();

@@ -2,7 +2,6 @@
 
 namespace Mdanter\X509\Extensions\Extension;
 
-use FG\ASN1\Universal\ObjectIdentifier;
 use Mdanter\X509\Extensions\MultiValuedExtension;
 
 class ExtendedKeyUsage extends MultiValuedExtension

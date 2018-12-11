@@ -5,7 +5,7 @@ require "../vendor/autoload.php";
 
 use Mdanter\Ecc\Serializer\PublicKey\DerPublicKeySerializer;
 use Mdanter\X509\Serializer\Certificates\CertificateSubjectSerializer;
-use Mdanter\X509\Serializer\Signature\DerSignatureSerializer;
+use Mdanter\Ecc\Serializer\Signature\DerSignatureSerializer;
 
 $curveName = 'secp256k1';
 $hasherName = 'sha512';
@@ -16,7 +16,7 @@ $f = new \Mdanter\X509\Factory();
 $domain = $f->getDomain($math, $curveName, $hasherName);
 $G = $domain->getGenerator();
 
-$randomInt = \Mdanter\Ecc\Random\RandomGeneratorFactory::getUrandomGenerator()->generate($G->getOrder());
+$randomInt = \Mdanter\Ecc\Random\RandomGeneratorFactory::getRandomGenerator()->generate($G->getOrder());
 $k = $G->getPrivateKeyFrom($randomInt);
 
 $issuerDetails = [

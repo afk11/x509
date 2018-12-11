@@ -5,23 +5,32 @@ namespace Mdanter\X509;
 class SignatureAlgorithm
 {
     /**
-     * @var Hasher
+     * @var string
      */
-    private $hasher;
+    private $hashAlgo;
 
     /**
-     * @param Hasher $hasher
+     * SignatureAlgorithm constructor.
+     * @param string $hashAlgo
      */
-    public function __construct(Hasher $hasher)
+    public function __construct($hashAlgo)
     {
-        $this->hasher = $hasher;
+        $this->hashAlgo = $hashAlgo;
     }
 
     /**
      * @return string
      */
-    public function algorithm()
+    public function getHashAlgorithm()
     {
-        return "ecdsa+" . $this->hasher->getAlgo();
+        return $this->hashAlgo;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEcdsaAlgorithm()
+    {
+        return "ecdsa+" . $this->hashAlgo;
     }
 }

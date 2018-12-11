@@ -2,8 +2,8 @@
 
 namespace Mdanter\X509\Certificates;
 
-use Mdanter\Ecc\Math\MathAdapterInterface;
 use Mdanter\Ecc\Crypto\Key\PrivateKeyInterface;
+use Mdanter\Ecc\Math\GmpMathInterface;
 use Mdanter\Ecc\Random\RandomGeneratorFactory;
 use Mdanter\X509\SignatureAlgorithm;
 use Mdanter\X509\Serializer\Certificates\CertificateSerializer;
@@ -12,7 +12,7 @@ use Mdanter\X509\EcDomain;
 class CertificateAuthority
 {
     /**
-     * @var MathAdapterInterface
+     * @var GmpMathInterface
      */
     private $math;
 
@@ -32,11 +32,11 @@ class CertificateAuthority
     private $domain;
 
     /**
-     * @param MathAdapterInterface $math
+     * @param GmpMathInterface $math
      * @param EcDomain $domain
      * @param CertificateSubject $issuer
      */
-    public function __construct(MathAdapterInterface $math, EcDomain $domain, CertificateSubject $issuer)
+    public function __construct(GmpMathInterface $math, EcDomain $domain, CertificateSubject $issuer)
     {
         $this->math = $math;
         $this->domain = $domain;
@@ -73,9 +73,9 @@ class CertificateAuthority
     {
         $domain = $this->domain;
         $dataHex = $subjectSerializer->getSignatureData($certificateInfo);
-        $hash = $domain->getHasher()->hashDec($dataHex);
+        $hash = $domain->getHasher()->hashGmp($dataHex);
 
-        $rng = RandomGeneratorFactory::getUrandomGenerator();
+        $rng = RandomGeneratorFactory::getRandomGenerator();
         $k = $rng->generate($domain->getGenerator()->getOrder());
         $signature = $this->domain->getSigner()->sign($privateKey, $hash, $k);
 

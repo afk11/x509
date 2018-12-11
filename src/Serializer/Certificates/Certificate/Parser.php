@@ -15,7 +15,7 @@ use Mdanter\X509\Certificates\Certificate;
 use Mdanter\X509\Serializer\Certificates\CertificateSerializer;
 use Mdanter\X509\Certificates\CertificateInfo;
 use Mdanter\X509\Certificates\CertificateSubject;
-use Mdanter\X509\Serializer\Signature\DerSignatureSerializer;
+use Mdanter\Ecc\Serializer\Signature\DerSignatureSerializer;
 use Mdanter\X509\Serializer\Util\CertificateSubjectOidMapper;
 use Mdanter\X509\Serializer\Util\SigAlgorithmOidMapper;
 

@@ -43,7 +43,7 @@ class SigAlgorithmOidMapper
      */
     public static function getSigAlgorithmOid(SignatureAlgorithm $sigAlgo)
     {
-        $algorithm = $sigAlgo->algorithm();
+        $algorithm = $sigAlgo->getEcdsaAlgorithm();
         if (array_key_exists($algorithm, self::$oidMap)) {
             $oidString = self::$oidMap[$algorithm];
 
@@ -61,7 +61,7 @@ class SigAlgorithmOidMapper
     {
         if (array_key_exists($sigAlgo, self::$oidMap)) {
             $algo = explode("+", $sigAlgo)[1];
-            return new Hasher(EccFactory::getAdapter(), $algo);
+            return new Hasher($algo);
         }
 
         throw new \RuntimeException('Unsupported hashing algorithm.');

@@ -17,7 +17,7 @@ use Mdanter\X509\Serializer\Certificates\CertificateSerializer;
 use Mdanter\X509\Serializer\Certificates\CertificateSubjectSerializer;
 use Mdanter\X509\Serializer\Certificates\Extensions\AbstractExtensions;
 use Mdanter\Ecc\Serializer\PublicKey\DerPublicKeySerializer;
-use Mdanter\X509\Serializer\Signature\DerSignatureSerializer;
+use Mdanter\Ecc\Serializer\Signature\DerSignatureSerializer;
 use Mdanter\X509\Serializer\Util\SigAlgorithmOidMapper;
 
 class Formatter

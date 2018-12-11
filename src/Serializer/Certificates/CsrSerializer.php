@@ -10,10 +10,10 @@ use FG\X509\CSR\Attributes;
 use Mdanter\Ecc\Crypto\Key\PublicKeyInterface;
 use Mdanter\Ecc\Curves\NamedCurveFp;
 use Mdanter\Ecc\Serializer\PublicKey\DerPublicKeySerializer;
+use Mdanter\Ecc\Serializer\Signature\DerSignatureSerializer;
 use Mdanter\Ecc\Serializer\Util\CurveOidMapper;
 use Mdanter\X509\Certificates\CertificateSubject;
 use Mdanter\X509\Certificates\Csr;
-use Mdanter\X509\Serializer\Signature\DerSignatureSerializer;
 use Mdanter\X509\Serializer\Util\SigAlgorithmOidMapper;
 
 class CsrSerializer

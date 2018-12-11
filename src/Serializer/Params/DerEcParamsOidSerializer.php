@@ -1,29 +1,26 @@
 <?php
 
-namespace Mdanter\X509\Serializer;
+namespace Mdanter\X509\Serializer\Params;
 
 use Mdanter\Ecc\Curves\NamedCurveFp;
+use Mdanter\Ecc\Primitives\GeneratorPoint;
 use Mdanter\Ecc\Serializer\Util\CurveOidMapper;
 use FG\ASN1\Universal\ObjectIdentifier;
 
-class EcParamsOidSerializer
+class DerEcParamsOidSerializer implements DerEcParamsSerializerInterface
 {
     const HEADER = '-----BEGIN EC PARAMETERS-----';
     const FOOTER = '-----END EC PARAMETERS-----';
 
     /**
      * @param NamedCurveFp $c
+     * @param GeneratorPoint $G
      * @return string
      */
-    public function serialize(NamedCurveFp $c)
+    public function serialize(NamedCurveFp $c, GeneratorPoint $G)
     {
         $oid = CurveOidMapper::getCurveOid($c);
-
-        $content = self::HEADER . PHP_EOL .
-            base64_encode($oid->getBinary()) . PHP_EOL .
-            self::FOOTER;
-
-        return $content;
+        return $oid->getBinary();
     }
 
     /**
@@ -32,9 +29,6 @@ class EcParamsOidSerializer
      */
     public function parse($params)
     {
-        $params = str_replace(self::HEADER, '', $params);
-        $params = str_replace(self::FOOTER, '', $params);
-
         $oid = ObjectIdentifier::fromBinary(base64_decode($params));
         return CurveOidMapper::getCurveFromOid($oid);
     }

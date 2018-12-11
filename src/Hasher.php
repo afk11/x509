@@ -2,8 +2,6 @@
 
 namespace Mdanter\X509;
 
-use Mdanter\Ecc\Math\MathAdapterInterface;
-
 class Hasher
 {
     /**
@@ -12,22 +10,16 @@ class Hasher
     private $algo;
 
     /**
-     * @var MathAdapterInterface
-     */
-    private $math;
-
-    /**
-     * @param MathAdapterInterface $math
      * @param string $algo
+     * @internal param MathAdapterInterface $math
      */
-    public function __construct(MathAdapterInterface $math, $algo)
+    public function __construct($algo)
     {
         if (!in_array($algo, hash_algos())) {
             throw new \InvalidArgumentException('Hashing algorithm not known');
         }
 
         $this->algo = $algo;
-        $this->math = $math;
     }
 
     /**
@@ -47,7 +39,16 @@ class Hasher
     {
         return hash($this->algo, $string, $binary);
     }
-
+    /**
+     * Hash the data, returning a decimal.
+     *
+     * @param $string - a binary string to hash
+     * @return \GMP
+     */
+    public function hashGmp($string)
+    {
+        return gmp_init($this->hash($string, false), 16);
+    }
     /**
      * Hash the data, returning a decimal.
      *
@@ -56,7 +57,7 @@ class Hasher
      */
     public function hashDec($string)
     {
-        $hex = $this->hash($string, false);
-        return $this->math->hexDec($hex);
+        $hex = unpack("H*", $this->hash($string, false))[1];
+        return gmp_strval(gmp_init($hex, 16), 10);
     }
 }

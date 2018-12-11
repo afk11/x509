@@ -1,15 +1,15 @@
 <?php
 
-namespace Mdanter\X509\Serializer\Curves;
+namespace Mdanter\X509\Serializer\Params;
 
 use FG\ASN1\Universal\BitString;
 use FG\ASN1\Universal\Integer;
 use FG\ASN1\Universal\ObjectIdentifier;
 use FG\ASN1\Universal\OctetString;
 use FG\ASN1\Universal\Sequence;
-use Mdanter\Ecc\Curves\NamedCurveFp;
 use Mdanter\Ecc\Curves\CurveRandomSeed;
-use Mdanter\Ecc\Math\MathAdapterInterface;
+use Mdanter\Ecc\Curves\NamedCurveFp;
+use Mdanter\Ecc\Math\GmpMathInterface;
 use Mdanter\Ecc\Primitives\GeneratorPoint;
 use Mdanter\Ecc\Serializer\Point\UncompressedPointSerializer;
 use Mdanter\Ecc\Serializer\Util\CurveOidMapper;
@@ -17,14 +17,19 @@ use Mdanter\Ecc\Serializer\Util\CurveOidMapper;
 /**
  * Serialize a named curve to it's explicit parameters.
  */
-class EcParamsSerializer
+class DerEcParamsSerializer implements DerEcParamsSerializerInterface
 {
     const VERSION = 3;
     const HEADER = '-----BEGIN EC PARAMETERS-----';
     const FOOTER = '-----END EC PARAMETERS-----';
 
     const FIELD_ID = '1.2.840.10045.1.1';
-
+    
+    /**
+     * @var UncompressedPointSerializer
+     */
+    private $pointSerializer;
+    
     /**
      * @param UncompressedPointSerializer $pointSerializer
      */
@@ -37,35 +42,38 @@ class EcParamsSerializer
      * @param NamedCurveFp $c
      * @return Sequence
      */
-    private function getFieldIdAsn(MathAdapterInterface $math, NamedCurveFp $c)
+    private function getFieldIdAsn(NamedCurveFp $c)
     {
         return new Sequence(
             new ObjectIdentifier(self::FIELD_ID), // 1.2.840.10045.3.1.1.7
-            new Integer($c->getPrime())
+            new Integer(gmp_strval($c->getPrime(), 10))
         );
     }
 
     /**
-     * @param MathAdapterInterface $math
+     * @param GmpMathInterface $math
      * @param NamedCurveFp $c
      * @return Sequence
      */
-    private function getCurveAsn(MathAdapterInterface $math, NamedCurveFp $c)
+    private function getCurveAsn(GmpMathInterface $math, NamedCurveFp $c)
     {
-        $a = new OctetString($math->decHex($math->mod($c->getA(), $c->getPrime())));
-        $b = new OctetString($math->decHex($math->mod($c->getB(), $c->getPrime())));
+        $a = gmp_strval($math->mod($c->getA(), $c->getPrime()), 16);
+        $a = strlen($a) % 2 === 0 ? $a : '0' . $a;
+
+        $b = gmp_strval($math->mod($c->getB(), $c->getPrime()), 16);
+        $b = strlen($b) % 2 === 0 ? $b : '0' . $b;
 
         try {
             $seed = CurveRandomSeed::getSeed($c);
             return new Sequence(
-                $a,
-                $b,
+                new OctetString($a),
+                new OctetString($b),
                 new BitString($seed)
             );
         } catch (\Exception $e) {
             return new Sequence(
-                $a,
-                $b
+                new OctetString($a),
+                new OctetString($b)
             );
         }
     }
@@ -79,7 +87,7 @@ class EcParamsSerializer
     {
         $math = $G->getAdapter();
 
-        $fieldID = $this->getFieldIdAsn($math, $c);
+        $fieldID = $this->getFieldIdAsn($c);
         $curve = $this->getCurveAsn($math, $c);
 
         $domain = new Sequence(
@@ -89,16 +97,10 @@ class EcParamsSerializer
             new OctetString($this->pointSerializer->serialize($G)),
             new Integer($G->getOrder()),
             new Integer(1)
-            // Hash function oid ?
+        // Hash function oid ?
         );
 
-        $payload = $domain->getBinary();
-
-        $content = self::HEADER . PHP_EOL
-            . trim(chunk_split(base64_encode($payload), 64, PHP_EOL)).PHP_EOL
-            . self::FOOTER;
-
-        return $content;
+        return $domain->getBinary();
     }
 
     /**

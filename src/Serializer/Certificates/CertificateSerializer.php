@@ -5,7 +5,7 @@ namespace Mdanter\X509\Serializer\Certificates;
 use Mdanter\X509\Certificates\Certificate;
 use Mdanter\X509\Certificates\CertificateInfo;
 use Mdanter\X509\Serializer\Certificates\Extensions\AbstractExtensions;
-use Mdanter\X509\Serializer\Signature\DerSignatureSerializer;
+use Mdanter\Ecc\Serializer\Signature\DerSignatureSerializer;
 use Mdanter\Ecc\Serializer\PublicKey\DerPublicKeySerializer;
 use Mdanter\X509\Serializer\Certificates\Certificate\Parser;
 use Mdanter\X509\Serializer\Certificates\Certificate\Formatter;

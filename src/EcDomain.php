@@ -4,7 +4,7 @@ namespace Mdanter\X509;
 
 use Mdanter\Ecc\Crypto\Signature\Signer;
 use Mdanter\Ecc\Curves\NamedCurveFp;
-use Mdanter\Ecc\Math\MathAdapterInterface;
+use Mdanter\Ecc\Math\GmpMathInterface;
 use Mdanter\Ecc\Primitives\GeneratorPoint;
 
 class EcDomain
@@ -25,26 +25,34 @@ class EcDomain
     private $hasher;
 
     /**
-     * @var MathAdapterInterface
+     * @var GmpMathInterface
      */
     private $math;
 
     /**
-     * @param MathAdapterInterface $math
+     * @var SignatureAlgorithm
+     */
+    private $sigAlg;
+
+    /**
+     * EcDomain constructor.
+     * @param GmpMathInterface $math
      * @param NamedCurveFp $curve
      * @param GeneratorPoint $generatorPoint
-     * @param Hasher $hasher - must be a known hash algorithm
+     * @param SignatureAlgorithm $sigAlg
      */
-    public function __construct(MathAdapterInterface $math, NamedCurveFp $curve, GeneratorPoint $generatorPoint, Hasher $hasher)
+    public function __construct(GmpMathInterface $math, NamedCurveFp $curve, GeneratorPoint $generatorPoint, SignatureAlgorithm $sigAlg)
     {
         if (!$curve->contains($generatorPoint->getX(), $generatorPoint->getY())) {
             throw new \RuntimeException('Provided generator point does not exist on curve');
         }
 
-        $this->hasher = $hasher;
+        $this->sigAlg = $sigAlg;
         $this->curve = $curve;
         $this->generator = $generatorPoint;
         $this->math = $math;
+        $this->hasher = new Hasher($sigAlg->getHashAlgorithm());
+        $this->signer = new Signer($math);
     }
 
     /**
@@ -68,7 +76,7 @@ class EcDomain
      */
     public function getSigAlgorithm()
     {
-        return new SignatureAlgorithm($this->getHasher());
+        return $this->sigAlg;
     }
 
     /**
